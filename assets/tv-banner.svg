@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#17272d"/>
+      <stop offset="1" stop-color="#091116"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#86f0bd"/>
+      <stop offset="1" stop-color="#50c996"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="180" rx="18" fill="url(#background)"/>
+  <circle cx="266" cy="33" r="87" fill="#6de0ad" opacity=".08"/>
+  <rect x="28" y="58" width="52" height="52" rx="14" fill="url(#accent)"/>
+  <path d="M43 96V72h6l6 10 6-10h6v24h-6V82l-6 10-6-10v14z" fill="#0b1c16"/>
+  <text x="96" y="82" fill="#f3f7f6" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" letter-spacing="2">SPINCO</text>
+  <text x="96" y="105" fill="#73e1af" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="1.5">CONNECT</text>
+  <text x="29" y="142" fill="#97a8ae" font-family="Arial, Helvetica, sans-serif" font-size="10" letter-spacing="1">DIGITAL SIGNAGE PLAYER</text>
+</svg>

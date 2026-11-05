@@ -1,25 +1,20 @@
 {
   "expo": {
-    "name": "spinco-connect",
+    "name": "Spinco Connect",
     "slug": "spinco-connect",
     "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "ios": {
-      "supportsTablet": true
-    },
+    "orientation": "landscape",
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
-      },
+      "package": "com.spinco.connect",
+      "softwareKeyboardLayoutMode": "pan",
       "predictiveBackGestureEnabled": false
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "plugins": [
+      ["@react-native-tvos/config-tv", { "isTV": true, "androidTVRequired": true, "androidTVBanner": "./assets/tv-banner.png" }],
+      "./plugins/withTvLauncher",
+      "expo-dev-client",
+      "expo-secure-store",
+      ["expo-splash-screen", { "image": "./assets/splash-logo.png", "imageWidth": 288, "backgroundColor": "#ffffff" }]
+    ]
   }
 }

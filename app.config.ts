@@ -1,0 +1,22 @@
+import type { ExpoConfig } from "expo/config";
+
+const config: ExpoConfig = {
+  name: "Spinco Connect",
+  slug: "spinco-connect",
+  version: "1.0.0",
+  orientation: "landscape",
+  android: {
+    package: "com.spinco.connect",
+    softwareKeyboardLayoutMode: "pan",
+    predictiveBackGestureEnabled: false,
+  },
+  plugins: [
+    ["@react-native-tvos/config-tv", { isTV: true, androidTVRequired: true, androidTVBanner: "./assets/tv-banner.png" }],
+    "./plugins/withTvLauncher",
+    "expo-dev-client",
+    "expo-secure-store",
+    ["expo-splash-screen", { image: "./assets/splash-logo.png", imageWidth: 288, backgroundColor: "#ffffff" }],
+  ],
+};
+
+export default config;
