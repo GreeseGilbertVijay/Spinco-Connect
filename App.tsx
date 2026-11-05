@@ -189,6 +189,7 @@ function removeLocalFile(uri: string, onError: () => void) {
 
 export default function App() {
   const [status, setStatus] = useState<PlayerStatus>("starting");
+  const [showSplash, setShowSplash] = useState(true);
   const [message, setMessage] = useState("Connecting to Spinco Connect");
   const [pairing, setPairing] = useState<PairingResponse | null>(null);
   const [current, setCurrent] = useState<CachedAssignment | null>(null);
@@ -532,11 +533,11 @@ export default function App() {
     setStatus("pairing");
   }, [completePairing]);
 
+  // The native splash clips its icon to a small circle, so the branded splash is drawn here at full size.
   // Timer-based on purpose: a stalled network or storage call must never leave the screen stuck on the splash.
   useEffect(() => {
-    const timer = setTimeout(() => {
-      void SplashScreen.hideAsync().catch(() => undefined);
-    }, SPLASH_DURATION);
+    void SplashScreen.hideAsync().catch(() => undefined);
+    const timer = setTimeout(() => setShowSplash(false), SPLASH_DURATION);
     return () => clearTimeout(timer);
   }, []);
 
@@ -755,6 +756,12 @@ export default function App() {
       {!isImageVisible && (
         <View style={styles.panel}>
           <Text style={styles.brand}>SPINCO <Text style={styles.brandAccent}>CONNECT</Text></Text>
+          <Image
+            source={require("./assets/spinco-logo.png")}
+            resizeMode="contain"
+            accessibilityLabel="Spinco logo"
+            style={[styles.logo, pairing && styles.logoCompact]}
+          />
           <View style={styles.statusRow}>
             {status !== "offline" && !revoked && <ActivityIndicator color="#70e0ae" />}
             <Text style={styles.message}>{message}</Text>
@@ -783,6 +790,17 @@ export default function App() {
           <Text style={styles.server}>Server: {API_URL}</Text>
         </View>
       )}
+      {showSplash && (
+        <View style={styles.splash}>
+          <Text style={styles.splashBrand}>SPINCO <Text style={styles.splashAccent}>CONNECT</Text></Text>
+          <Image
+            source={require("./assets/spinco-logo.png")}
+            resizeMode="contain"
+            accessibilityLabel="Spinco logo"
+            style={styles.splashLogo}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -792,7 +810,15 @@ const styles = StyleSheet.create({
   fullscreen: { ...StyleSheet.absoluteFill, width: undefined, height: undefined },
   // Kept above 0 so Android cannot skip loading a fully transparent view.
   candidate: { opacity: 0.01 },
-  panel: { alignItems: "center", justifyContent: "center", width: "100%", padding: 48 },
+  splash: { ...StyleSheet.absoluteFill, alignItems: "center", justifyContent: "center", backgroundColor: "#ffffff" },
+  splashBrand: { color: "#1a1c19", fontSize: 44, fontWeight: "800", letterSpacing: 4, marginBottom: 24 },
+  splashAccent: { color: "#e8833a" },
+  splashLogo: { width: 220, height: 220 },
+  panel: { flex: 1, alignItems: "center", justifyContent: "center", width: "100%", paddingHorizontal: 48, paddingVertical: 24 },
+  // White backing keeps the logo's black outline and tagline readable on the dark screen.
+  logo: { width: 180, height: 180, marginBottom: 20, borderRadius: 16, backgroundColor: "#ffffff" },
+  // The pairing view fills a 540dp-tall TV screen, so the logo shrinks to keep the code and button visible.
+  logoCompact: { width: 96, height: 96, marginBottom: 12, borderRadius: 10 },
   brand: { color: "#f6f8fa", fontSize: 28, fontWeight: "800", letterSpacing: 4, marginBottom: 24 },
   brandAccent: { color: "#70e0ae" },
   statusRow: { minHeight: 34, flexDirection: "row", alignItems: "center", gap: 12 },
