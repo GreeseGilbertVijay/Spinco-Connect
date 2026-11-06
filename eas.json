@@ -9,11 +9,11 @@
     "preview": {
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "env": { "APP_ENV": "production" }
+      "env": { "APP_ENV": "production", "EXPO_PUBLIC_API_URL": "https://nodejs-1662913-6770471.cloudwaysnodeapps.com" }
     },
     "production": {
       "android": { "buildType": "apk" },
-      "env": { "APP_ENV": "production" }
+      "env": { "APP_ENV": "production", "EXPO_PUBLIC_API_URL": "https://nodejs-1662913-6770471.cloudwaysnodeapps.com" }
     }
   }
 }

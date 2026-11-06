@@ -17,7 +17,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEventListener } from "expo";
 import { useVideoPlayer, VideoView } from "expo-video";
 
-const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? "http://10.0.2.2:3000").replace(/\/+$/, "");
+const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? "https://nodejs-1662913-6770471.cloudwaysnodeapps.com").replace(/\/+$/, "");
 const DEVICE_TOKEN_KEY = "spinco.device-token";
 const PAIRING_CODE_KEY = "spinco.pairing-code";
 const CACHE_KEY = "spinco.cached-assignment";

@@ -5,8 +5,13 @@ const config: ExpoConfig = {
   slug: "spinco-connect",
   version: "1.0.0",
   orientation: "landscape",
+  icon: "./assets/icon.png",
+  extra: {
+    eas: { projectId: "42fda22b-f307-4584-a562-458ffc4bfb95" },
+  },
   android: {
     package: "com.spinco.connect",
+    adaptiveIcon: { foregroundImage: "./assets/adaptive-icon.png", backgroundColor: "#ffffff" },
     softwareKeyboardLayoutMode: "pan",
     predictiveBackGestureEnabled: false,
   },
