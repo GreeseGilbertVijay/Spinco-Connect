@@ -35,7 +35,8 @@ module.exports = function withBootLaunch(config) {
     const receivers = (application.receiver ?? []).filter((item) => item.$["android:name"] !== RECEIVER_NAME);
     receivers.push({
       $: { "android:name": RECEIVER_NAME, "android:enabled": "true", "android:exported": "true" },
-      "intent-filter": [{ action: BOOT_ACTIONS.map((name) => ({ $: { "android:name": name } })) }],
+      // Boot broadcasts reach receivers one at a time, so a high priority avoids queueing behind other apps.
+      "intent-filter": [{ $: { "android:priority": "1000" }, action: BOOT_ACTIONS.map((name) => ({ $: { "android:name": name } })) }],
     });
     application.receiver = receivers;
     return mod;
