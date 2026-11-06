@@ -11,6 +11,7 @@ const config: ExpoConfig = {
   },
   android: {
     package: "com.spinco.connect",
+    permissions: ["android.permission.RECEIVE_BOOT_COMPLETED", "android.permission.SYSTEM_ALERT_WINDOW"],
     adaptiveIcon: { foregroundImage: "./assets/adaptive-icon.png", backgroundColor: "#ffffff" },
     softwareKeyboardLayoutMode: "pan",
     predictiveBackGestureEnabled: false,
@@ -18,8 +19,10 @@ const config: ExpoConfig = {
   plugins: [
     ["@react-native-tvos/config-tv", { isTV: true, androidTVRequired: true, androidTVBanner: "./assets/tv-banner.png" }],
     "./plugins/withTvLauncher",
+    "./plugins/withBootLaunch",
     "expo-dev-client",
     "expo-secure-store",
+    ["expo-navigation-bar", { hidden: true }],
     ["expo-splash-screen", { image: "./assets/splash-logo.png", imageWidth: 288, backgroundColor: "#ffffff" }],
   ],
 };

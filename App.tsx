@@ -15,6 +15,7 @@ import * as SecureStore from "expo-secure-store";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 import * as SplashScreen from "expo-splash-screen";
 import { useEventListener } from "expo";
+import { NavigationBar } from "expo-navigation-bar";
 import { useVideoPlayer, VideoView } from "expo-video";
 
 const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? "https://nodejs-1662913-6770471.cloudwaysnodeapps.com").replace(/\/+$/, "");
@@ -22,6 +23,7 @@ const DEVICE_TOKEN_KEY = "spinco.device-token";
 const PAIRING_CODE_KEY = "spinco.pairing-code";
 const CACHE_KEY = "spinco.cached-assignment";
 const POLL_INTERVAL = 7_000;
+const SYSTEM_BAR_HIDE_INTERVAL = 10_000;
 const HEARTBEAT_INTERVAL = 10_000;
 const SPLASH_DURATION = 2_000;
 const PAIRING_RETRY_INTERVAL = 60_000;
@@ -533,6 +535,13 @@ export default function App() {
     setStatus("pairing");
   }, [completePairing]);
 
+  // Re-applied on a timer because a system bar that reappears, for example after a remote press, stays until hidden again.
+  useEffect(() => {
+    NavigationBar.setHidden(true);
+    const timer = setInterval(() => NavigationBar.setHidden(true), SYSTEM_BAR_HIDE_INTERVAL);
+    return () => clearInterval(timer);
+  }, []);
+
   // The native splash clips its icon to a small circle, so the branded splash is drawn here at full size.
   // Timer-based on purpose: a stalled network or storage call must never leave the screen stuck on the splash.
   useEffect(() => {
@@ -787,7 +796,6 @@ export default function App() {
               <Text style={styles.buttonText}>Retry connection</Text>
             </Pressable>
           )}
-          <Text style={styles.server}>Server: {API_URL}</Text>
         </View>
       )}
       {showSplash && (
@@ -826,7 +834,6 @@ const styles = StyleSheet.create({
   instruction: { color: "#bac5cf", fontSize: 22, marginTop: 40 },
   code: { color: "#70e0ae", fontSize: 60, fontWeight: "800", letterSpacing: 16, marginTop: 16 },
   expiry: { color: "#7d8b98", fontSize: 16, marginTop: 10 },
-  server: { position: "absolute", bottom: 8, color: "#56616d", fontSize: 13 },
   offlineDot: { position: "absolute", top: 24, right: 24, width: 22, height: 22, borderRadius: 11, backgroundColor: "#eb4d55" },
   offlineDotFocused: { borderWidth: 3, borderColor: "#f6f8fa", transform: [{ scale: 1.4 }] },
   popupBackdrop: { ...StyleSheet.absoluteFill, alignItems: "center", justifyContent: "center", backgroundColor: "#000000aa" },
