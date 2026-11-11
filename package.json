@@ -14,7 +14,8 @@
     "expo-status-bar": "~58.0.4",
     "expo-video": "~58.0.13",
     "react": "19.3.0",
-    "react-native": "npm:react-native-tvos@0.88.0-0"
+    "react-native": "npm:react-native-tvos@0.88.0-0",
+    "react-native-webrtc": "^155.0.1"
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
@@ -30,6 +31,9 @@
   "private": true,
   "overrides": {
     "@react-native-tvos/virtualized-lists": {
+      "react-native": "$react-native"
+    },
+    "react-native-webrtc": {
       "react-native": "$react-native"
     }
   }

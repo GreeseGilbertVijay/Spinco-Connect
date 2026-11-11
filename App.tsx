@@ -17,6 +17,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEventListener } from "expo";
 import { NavigationBar } from "expo-navigation-bar";
 import { useVideoPlayer, VideoView } from "expo-video";
+import { ShareView, useScreenShare } from "./ScreenShare";
 
 const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? "https://nodejs-1662913-6770471.cloudwaysnodeapps.com").replace(/\/+$/, "");
 const DEVICE_TOKEN_KEY = "spinco.device-token";
@@ -201,7 +202,7 @@ export default function App() {
   const [offlinePopup, setOfflinePopup] = useState(false);
   const [fit, setFit] = useState<"contain" | "cover">("contain");
   const [paired, setPaired] = useState(false);
-  const [playerError, setPlayerError] = useState<string | null>(null);
+  const [, setPlayerError] = useState<string | null>(null);
   const [foreground, setForeground] = useState(
     AppState.currentState !== "background" && AppState.currentState !== "inactive",
   );
@@ -258,6 +259,8 @@ export default function App() {
     if (!response.ok) throw new Error(`Server returned ${response.status}`);
     return response;
   }, [handleRevoked]);
+
+  const shareUrl = useScreenShare(paired, authenticatedFetch);
 
   // Shows the problem on the TV and sends it to the dashboard, once per distinct message.
   const reportError = useCallback((message: string) => {
@@ -684,7 +687,10 @@ export default function App() {
     if (status !== "offline") setOfflinePopup(false);
   }, [status]);
 
-  const isImageVisible = !!current || !!candidate || !!slideshow;
+  // While a live share is showing, the assigned content is unmounted so its sound stops and
+  // its video surface cannot draw over the share. It comes back when the share ends.
+  const sharing = !!shareUrl;
+  const isImageVisible = !!current || !!candidate || !!slideshow || sharing;
   const retryConnection = useCallback(() => {
     setStatus("starting");
     const operation = tokenRef.current ? fetchConfiguration() : beginPairing();
@@ -697,7 +703,7 @@ export default function App() {
   return (
     <View style={styles.screen}>
       <StatusBar hidden />
-      {slideshow && (
+      {slideshow && !sharing && (
         <SlideshowLayer
           key={slideshow.version}
           slideshow={slideshow}
@@ -706,7 +712,7 @@ export default function App() {
           onError={reportError}
         />
       )}
-      {current && isVideo(current) && (
+      {current && isVideo(current) && !sharing && (
         <VideoLayer
           key={current.uri}
           media={current}
@@ -715,7 +721,7 @@ export default function App() {
           onError={(reason) => reportError(`The video could not be played: ${reason}`)}
         />
       )}
-      {current && !isVideo(current) && (
+      {current && !isVideo(current) && !sharing && (
         <Image
           source={{ uri: current.uri }}
           resizeMode={fit}
@@ -733,11 +739,7 @@ export default function App() {
           onError={({ nativeEvent }) => rejectCandidate(candidate, String(nativeEvent.error ?? "decode failed"))}
         />
       )}
-      {playerError && !(isImageVisible && status === "offline") && (
-        <View style={styles.errorBar}>
-          <Text style={styles.errorText}>{playerError}</Text>
-        </View>
-      )}
+      {shareUrl && <ShareView streamUrl={shareUrl} style={styles.share} />}
       {isImageVisible && status === "offline" && (
         <Pressable
           hasTVPreferredFocus={!offlinePopup}
@@ -773,7 +775,8 @@ export default function App() {
           />
           <View style={styles.statusRow}>
             {status !== "offline" && !revoked && <ActivityIndicator color="#70e0ae" />}
-            <Text style={styles.message}>{message}</Text>
+            {/* Failures are left to the Retry button alone, so no error text shows on the display. */}
+            {status !== "offline" && <Text style={styles.message}>{message}</Text>}
           </View>
           {pairing && (
             <>
@@ -818,15 +821,16 @@ const styles = StyleSheet.create({
   fullscreen: { ...StyleSheet.absoluteFill, width: undefined, height: undefined },
   // Kept above 0 so Android cannot skip loading a fully transparent view.
   candidate: { opacity: 0.01 },
+  share: { ...StyleSheet.absoluteFill, backgroundColor: "#000000" },
   splash: { ...StyleSheet.absoluteFill, alignItems: "center", justifyContent: "center", backgroundColor: "#ffffff" },
   splashBrand: { color: "#1a1c19", fontSize: 44, fontWeight: "800", letterSpacing: 4, marginBottom: 24 },
   splashAccent: { color: "#e8833a" },
   splashLogo: { width: 220, height: 220 },
   panel: { flex: 1, alignItems: "center", justifyContent: "center", width: "100%", paddingHorizontal: 48, paddingVertical: 24 },
   // White backing keeps the logo's black outline and tagline readable on the dark screen.
-  logo: { width: 180, height: 180, marginBottom: 20, borderRadius: 16, backgroundColor: "#ffffff" },
+  logo: { width: 96, height: 96, marginBottom: 16, borderRadius: 10, backgroundColor: "#ffffff" },
   // The pairing view fills a 540dp-tall TV screen, so the logo shrinks to keep the code and button visible.
-  logoCompact: { width: 96, height: 96, marginBottom: 12, borderRadius: 10 },
+  logoCompact: { width: 72, height: 72, marginBottom: 12, borderRadius: 8 },
   brand: { color: "#f6f8fa", fontSize: 28, fontWeight: "800", letterSpacing: 4, marginBottom: 24 },
   brandAccent: { color: "#70e0ae" },
   statusRow: { minHeight: 34, flexDirection: "row", alignItems: "center", gap: 12 },
@@ -841,9 +845,8 @@ const styles = StyleSheet.create({
   popupTitle: { color: "#f6f8fa", fontSize: 28, fontWeight: "800" },
   popupMessage: { color: "#bac5cf", fontSize: 20, marginTop: 12 },
   popupActions: { flexDirection: "row", justifyContent: "flex-end", gap: 16 },
-  errorBar: { position: "absolute", bottom: 28, left: 28, right: 28, padding: 14, borderRadius: 10, backgroundColor: "#261719ee" },
-  errorText: { color: "#ffb6b9", fontSize: 16, textAlign: "center" },
-  button: { marginTop: 32, paddingHorizontal: 28, paddingVertical: 16, borderRadius: 12, backgroundColor: "#14232b" },
-  buttonFocused: { backgroundColor: "#70e0ae", transform: [{ scale: 1.05 }] },
-  buttonText: { color: "#f6f8fa", fontSize: 20, fontWeight: "700" },
+  // Logo orange; the border is always reserved so focusing a button does not shift the layout.
+  button: { marginTop: 32, paddingHorizontal: 28, paddingVertical: 14, borderRadius: 12, borderWidth: 3, borderColor: "transparent", backgroundColor: "#e8833a" },
+  buttonFocused: { backgroundColor: "#f39a55", borderColor: "#ffffff", transform: [{ scale: 1.05 }] },
+  buttonText: { color: "#1a1c19", fontSize: 20, fontWeight: "800" },
 });

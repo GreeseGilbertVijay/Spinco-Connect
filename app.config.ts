@@ -11,7 +11,15 @@ const config: ExpoConfig = {
   },
   android: {
     package: "com.spinco.connect",
-    permissions: ["android.permission.RECEIVE_BOOT_COMPLETED", "android.permission.SYSTEM_ALERT_WINDOW"],
+    // The last three are for receiving a live screen share. The player only receives,
+    // so the camera and microphone permissions WebRTC can use are left out.
+    permissions: [
+      "android.permission.RECEIVE_BOOT_COMPLETED",
+      "android.permission.SYSTEM_ALERT_WINDOW",
+      "android.permission.ACCESS_NETWORK_STATE",
+      "android.permission.MODIFY_AUDIO_SETTINGS",
+      "android.permission.WAKE_LOCK",
+    ],
     adaptiveIcon: { foregroundImage: "./assets/adaptive-icon.png", backgroundColor: "#ffffff" },
     softwareKeyboardLayoutMode: "pan",
     predictiveBackGestureEnabled: false,
@@ -20,6 +28,7 @@ const config: ExpoConfig = {
     ["@react-native-tvos/config-tv", { isTV: true, androidTVRequired: true, androidTVBanner: "./assets/tv-banner.png" }],
     "./plugins/withTvLauncher",
     "./plugins/withBootLaunch",
+    "./plugins/withWebRtcProguard",
     "expo-dev-client",
     "expo-secure-store",
     ["expo-navigation-bar", { hidden: true }],
